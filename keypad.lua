@@ -37,6 +37,21 @@ function keypad.scan()
   return false
 end
 
+function keypad.waitForKey(tmr_id, callback, seconds, debounce)
+  local timeout = seconds * 1000
+  tmr.alarm(tmr_id, debounce, tmr.ALARM_AUTO, function()
+    local key = keypad.scan()
+    timeout = timeout - debounce
+    if timeout > 0 and not key then return end
+    tmr.unregister(tmr_id)
+    if key then 
+      callback(key) 
+    else
+      callback(false) 
+    end
+  end)
+end
+
 return keypad
 
 -- vim: et ts=2 sw=2 ai

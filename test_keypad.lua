@@ -10,18 +10,30 @@
 dofile("keypad.lua")
 
 -- configuration
-local ROW_PINS = { 8, 7, 6, 5 }
-local COL_PINS = { 4, 3, 2 }
-local LABELS = "123456789*0#"
+local KEYPAD_ROW_PINS = { 1, 2, 3, 4 }
+local KEYPAD_COL_PINS = { 0, 5, 6 }
+local KEYPAD_LABELS = "123456789*0#"
 
 -- initialization
 local myKeypad = require "keypad"
-myKeypad.init(ROW_PINS, COL_PINS, "123456789*0#")
+myKeypad.init(KEYPAD_ROW_PINS, KEYPAD_COL_PINS, KEYPAD_LABELS)
 
--- use a timer to scan keys every 100ms and print them
-tmr.alarm(0, 100, tmr.ALARM_AUTO, function() 
+-- use a timer to scan keys every 500ms and print them
+tmr.alarm(1, 500, tmr.ALARM_SINGLE, function() 
   local key = myKeypad.scan()
   if key then print(key) end
 end)
+
+-- wait for keys
+function processKey(key)
+  if key then
+    print(string.format("You have pressed '%s'", key))
+    myKeypad.waitForKey(0, processKey, 30, 200)
+  else
+    print("Timed out!")
+  end
+end
+print("Press keys or wait 30s...")
+myKeypad.waitForKey(0, processKey, 30, 200)
 
 -- vim: et ts=2 sw=2 ai
